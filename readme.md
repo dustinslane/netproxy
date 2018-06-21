@@ -24,7 +24,7 @@ Usage
 =====
 - Compile for your platform following instructions at https://www.microsoft.com/net/core
 - Rewrite the config.json file to fit your need
-- Run NetProxy
+- Either run Netproxy without any command line arguments, or supply a web address that contains the config json as the first argument: `dotnet.exe netproxy.dll https://example.com/config.json`
 
 Configuration
 =============
