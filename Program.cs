@@ -15,43 +15,16 @@ namespace NetProxy
 
                 var configs = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, ProxyConfig>>(configJson);
 
+                List<Task> tasks =  new List<Task>();
 
-                Task.WhenAll(configs.Select(c =>
-                {
-                    if (c.Value.protocol == "udp")
-                    {
-                        try
-                        {
-                            var proxy = new UdpProxy();
-                            return proxy.Start(c.Value.forwardIp, c.Value.forwardPort, c.Value.localPort, c.Value.localIp);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Failed to start {c.Key} : {ex.Message}");
-                            throw ex;
-                        }
-                    }
-                    else if (c.Value.protocol == "tcp")
-                    {
-                        try
-                        {
-                            var proxy = new TcpProxy();
-                            return proxy.Start(c.Value.forwardIp, c.Value.forwardPort, c.Value.localPort, c.Value.localIp);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Failed to start {c.Key} : {ex.Message}");
-                            throw ex;
-                        }
-                    }
-                    else
-                    {
-                        return Task.FromException(new InvalidOperationException($"procotol not supported {c.Value.protocol}"));
-                    }
-                })).Wait();
-
-
-
+                foreach ( var config in configs ) {
+                    Console.WriteLine($"[Setup] Initialising Proxy {config.Key}");
+                    tasks.Add(StartTCPClient(config.Value));
+                    tasks.Add(StartUDPClient(config.Value));
+                    Console.WriteLine("");
+                }
+                
+                Task.WhenAll(tasks).Wait();
 
             }
             catch (Exception ex)
@@ -59,7 +32,16 @@ namespace NetProxy
                 Console.WriteLine($"An error occured : {ex}");
             }
         }
+        private static Task StartTCPClient(ProxyConfig c) {
+            return new TcpProxy().Start(c.forwardIp, c.forwardPort, c.localPort, c.localIp);
+        }
+
+        private static Task StartUDPClient(ProxyConfig c) {
+            return new UdpProxy().Start(c.forwardIp, c.forwardPort, c.localPort, c.localIp);
+        }
     }
+    
+    
 
     public class ProxyConfig
     {
