@@ -19,7 +19,7 @@ namespace NetProxy
             server.Client.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
             IPAddress localIpAddress = string.IsNullOrEmpty(localIp) ? IPAddress.IPv6Any : IPAddress.Parse(localIp);
             server.Client.Bind(new IPEndPoint(localIpAddress, localPort));
-            Console.WriteLine($"proxy started UDP:{localIpAddress}|{localPort} -> {remoteServerIp}|{remoteServerPort}");
+            Console.WriteLine($"UDP proxy started :{localIpAddress}|{localPort} -> {remoteServerIp}|{remoteServerPort}");
             var _ = Task.Run(async () =>
             {
 
@@ -87,7 +87,6 @@ namespace NetProxy
 
             await _tcs.Task;
             var sent = await client.SendAsync(message, message.Length, _remoteServer);
-            Console.WriteLine($"{sent} bytes sent from a client message of {message.Length} bytes from {_clientEndpoint} to {_remoteServer}");
         }
 
         private void Run()
@@ -106,7 +105,6 @@ namespace NetProxy
                             var result = await client.ReceiveAsync();
                             lastActivity = DateTime.UtcNow;
                             var sent = await _server.SendAsync(result.Buffer, result.Buffer.Length, _clientEndpoint);
-                            Console.WriteLine($"{sent} bytes sent from a return message of {result.Buffer.Length} bytes from {_remoteServer} to {_clientEndpoint}");
 
                         }
                         catch (Exception ex)
