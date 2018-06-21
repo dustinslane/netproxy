@@ -2,16 +2,23 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Net;
 
 namespace NetProxy
 {
     class Program
     {
-        static void Main(string[] args)
-        {
+        static void Main(string[] args) {
             try
             {
                 var configJson = System.IO.File.ReadAllText("config.json");
+                if ( args.Length > 0 ) {
+                    using (WebClient wc = new WebClient())
+                    {
+                        configJson = wc.DownloadString(args[0]);
+                    }
+                }
+                
 
                 var configs = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, ProxyConfig>>(configJson);
 
